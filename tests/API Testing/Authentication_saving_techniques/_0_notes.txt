@@ -1,0 +1,41 @@
+
+1. Playwright executes tests in isolated environments called browser contexts.
+   By reusing authentication state tests can load existing authenticated state. 
+   This eliminates the need to authenticate in every test.
+
+2. Reusing authenticated state covers cookies and local storage based authentication ONLY & NOT session storage.
+
+3. If the authentication uses Session storage, we have to deal it differently.
+
+4. Below are 3 different ways to Save / Preserve and  Reuse Authentication state.
+   
+   a. By using Codegen command [see the video resource mentioned below]
+   b. By using globalSetup.
+   c. By using Dependencies.
+
+5. We can reset storage state in a spec file to avoid authentication that was set up for the whole project in config file.
+
+   test.use({ storageState: { cookies: [], origins: [] } });
+
+6. We can PROVIDE a storage state in a spec file explicitly.
+  
+   test.use({storageState : './playwright/.auth/<file-name>'})
+
+7. It is recommended to create playwright/.auth directory and add it to your .gitignore.
+
+8. Avoid authentication in a single test case using below: [Here context is a fixture]
+ 
+   await context.clearCookies();
+
+   //In our example of saving storage state using dependency, it won't work because for the used AUT,
+     we save data in localstorage and not in cookies.
+
+
+*** Only resource to follow : https://www.youtube.com/watch?v=CoXERxRPeik&t=1817s [Wishinfinite]
+                              https://playwright.dev/docs/auth#introduction [For more advanced topics]
+                              https://dev.to/playwright/a-better-global-setup-in-playwright-reusing-login-with-project-dependencies-14
+
+
+*** Working with cookies:
+
+KK- Udemy - section 11[76-78]

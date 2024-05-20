@@ -1,0 +1,11 @@
+{
+  "firstname": "Abhishek",
+  "lastname": "Madan",
+  "totalprice": 111,
+  "depositpaid": true,
+  "bookingdates": {
+    "checkin": "2024-04-07",
+    "checkout": "2024-05-15"
+  },
+  "additionalneeds": "Dinner"
+}
