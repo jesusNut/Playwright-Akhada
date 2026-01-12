@@ -1,7 +1,7 @@
 //!💰 There are certain scenarios where we want to make sure than Fixture 1 is always set up before Fixture 2.
 //!💰 For example : Lets say we when we click a link on 'FirstPage'  it opens a new 'SecondPage' in a new tab.
 //!💰 In 'fixtures.ts' file, I want that 'FirstPage' is always configured BEFORE 'SecondPage' is configured.
-//!💰 Same concept is used in notes : while "Integrating New Window/New tab scenario in Framework"
+//!💰 Same concept is used in notes & framework implementation : while "Integrating New Window/New tab scenario in Framework"
 
 //!==================================================================================================================
 

@@ -39,7 +39,7 @@ test("using waitForResponse without predicate-way 1", async ({ page }) => {
   //!👉👉👉 Once we are confirmed that the Page will always wait for the API response to be available, then do assertions.
   expect(
     await page.locator("//app-gitrepos/div/div/ol/li").count()
-  ).toBeGreaterThan(17);
+  ).toBeGreaterThan(24);
 });
 
 test("using waitForResponse with predicate-way 2", async ({ page }) => {
@@ -168,5 +168,4 @@ test("using waitForRequest with Promise.all-way 3", async ({ page }) => {
   //!👉👉👉 Now you can use the 'returnedValue', the way you want.
   console.log(returnedValue[1].method());
   console.log(await returnedValue[1].allHeaders());
-
 });

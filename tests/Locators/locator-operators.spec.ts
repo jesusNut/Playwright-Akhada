@@ -1,5 +1,14 @@
 import { expect, test } from "@playwright/test";
 
+/**===============================================================================================================
+ *!    ☠️☠️  UNDERSTANDING FILTERS VS NARROWING ☠️☠️
+
+        //todo : Filtering: pick all matching elements, then filter among them uinsg text/child;
+        //todo  Find All elements → Filter → Match
+
+        //* : Narrowing: start from a logical parent container and narrow down to the child element
+        //*   You first locate a parent DOM element, and then find the child element inside that parent’s DOM subtree.
+
 /**================================================================================================================
  *!    ☠️☠️  UNDERSTANDING LOCATOR OPERATIONS ☠️☠️
  
@@ -45,15 +54,23 @@ test("NARROWING DOWN VS FILTER CONCEPT", async ({ page }) => {
 
   //! ALWAYS REMEMBER : Narrowing down a specific part of page/locator is different from FILTER concept.
 
-  //find the topbar menu-> and then find the count of all li tags (listitem) inside it by narrowing & then by filtering.
-  const topbar_menu = page.getByRole("navigation", { name: "Topbar Menu" });
-  const alllistitems = topbar_menu.getByRole("listitem");
-  const countFromNarrowing = await alllistitems.count();
-  console.log(`Count using Narrowing method is : ${countFromNarrowing}`); //Count using Narrowing method is : 7
+  //find the topbar menu-> and then find the count of all li tags (listitem) inside it by narrowing & then by filtering the submenu Assign Leave.
+
+  let parentDom = page.getByRole("navigation", { name: /Topbar Menu/ });
+  const child1Dom = parentDom.getByRole("listitem"); //! narrowing
+  const countFromNarrowing = await child1Dom.count();
+  console.log(`Count using Narrowing method is : ${countFromNarrowing}`);
+  const targetedEle = child1Dom.filter({ hasText: /Assign Leave/ }); //!filtering
+  await targetedEle.click();
 
   //! --------------------------------------------------------------------------------------------------
 
-  const countFromFilter = await topbar_menu
+  await page.waitForURL(/.*assignLeave/, { waitUntil: "networkidle" });
+  // In modern web apps (like the OrangeHRM demo), clicking a menu item often triggers a re-render of the entire header or navigation bar.
+  // Even if the menu looks the same, the actual HTML elements in the browser's memory are destroyed and replaced with new ones.
+  // By re-assigning parentDom = page.getByRole(...), you are telling Playwright to "look again" for the version of the menu that exists on the new page.
+  parentDom = page.getByRole("navigation", { name: /Topbar Menu/ });
+  const countFromFilter = await parentDom
     .filter({
       has: page.getByRole("listitem"),
     })
@@ -70,7 +87,7 @@ test("NARROWING DOWN VS FILTER CONCEPT", async ({ page }) => {
 
   //lets say we want to filter all li tags (listitem) which has dropdown in them and print their count from topbar menu.
 
-  const listhavingdropdowns = await topbar_menu
+  const listhavingdropdowns = await parentDom
     .getByRole("listitem")
     .filter({ has: page.locator("//span") })
     .count();
@@ -94,6 +111,7 @@ test("Matching two locators simultaneously", async ({ page }) => {
   );
 
   //! we want to locate a web element by combining 2 locator strategies.
+  //todo : Both locators must point to the same element.
 
   await page
     .getByRole("textbox", { name: "Username", exact: true })
@@ -117,5 +135,3 @@ test("Matching one of the two alternative locators", async ({ page }) => {
     await page.getByRole("button", { name: "Dismiss" }).click();
   await newEmail.click();
 });
-
-

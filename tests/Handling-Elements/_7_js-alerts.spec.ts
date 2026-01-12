@@ -162,7 +162,7 @@ test("PROMPT ALERTS using Dialog Handler- on() method -ENTER MESSAGE", async ({
     //! If we have handled the event dialog box manually, then we have to act(CANCEL) upon it manually.
     //! In this case PW will not dismiss it by default.
 
-    await promptBox.accept("Abhishek is good God is best");
+    await promptBox.accept("Abhishek is good, God is best");
   });
 
   await page.waitForTimeout(4000);
@@ -175,7 +175,7 @@ test("PROMPT ALERTS using Dialog Handler- on() method -ENTER MESSAGE", async ({
   //assert the UI message
 
   await expect(page.locator("//p[@id='result']")).toHaveText(
-    "You entered: Abhishek is good God is best"
+    "You entered: Abhishek is good, God is best"
   );
 });
 

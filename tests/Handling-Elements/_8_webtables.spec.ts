@@ -22,7 +22,7 @@ test("Handling webtables- example 1", async ({ page }) => {
   expect(columns).toBe(4);
 });
 
-test("Selecting single check box on first page of a pagination table", async ({
+test("Selecting single check box on first page of a pagination table -1", async ({
   page,
 }) => {
   await page.goto("https://testautomationpractice.blogspot.com/");
@@ -41,6 +41,23 @@ test("Selecting single check box on first page of a pagination table", async ({
   //click the checkbox once the 'Product 3' is identified.
 
   await locator.locator("td").last().locator("input").check();
+});
+
+test("Selecting single check box on first page of a pagination table -2", async ({
+  page,
+}) => {
+   await page.goto(
+    "https://testautomationpractice.blogspot.com/p/playwrightpractice.html"
+  );
+
+  const expectedVal= "Smartwatch";
+  const parent = page.locator("//table[@id='productTable']/tbody/tr");
+
+  await parent
+    .locator("xpath = ./td[2]")
+    .filter({ hasText: `${expectedVal}` })
+    .locator("xpath = ./following-sibling::td/input")
+    .click();
 });
 
 test("Selecting multiple check boxes on first page of a pagination table", async ({
@@ -127,5 +144,32 @@ test("Printing all data on ALL pages of a pagination table ", async ({
         }
       }
     }
+  }
+});
+test("Selecting data on any page in webtable with pagination", async ({ page }) => {
+  await page.goto(
+    "https://testautomationpractice.blogspot.com/p/playwrightpractice.html"
+  );
+
+  const paginationAnchors = page
+    .locator("//ul[@id='pagination']/li/a");
+
+  const paginationCount = await paginationAnchors.count();
+
+  for (let i = 0; i < paginationCount; i++) {
+    const parent = page
+      .locator("//table[@id='productTable']/tbody/tr/td[2]")
+      .filter({ hasText: "Wireless Mouse 20" });
+
+    if ((await parent.count()) > 0) {
+      await parent.locator("xpath = ./following-sibling::td/input").click();
+      break;
+    }
+
+  // move to NEXT page only if not on last page
+  if (i < paginationCount - 1) {
+    await paginationAnchors.nth(i + 1).click();
+  }
+    
   }
 });

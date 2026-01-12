@@ -140,9 +140,8 @@ test("page.locator().press() method - COMBO OF KEYS", async ({ page }) => {
   await page.locator("//input[@id='getMe']").press("Control+KeyC"); //copy
   await page.waitForTimeout(2100);
   await page.locator("//input[@id='clearMe']").press("Control+KeyV"); //paste
-  //! 🤡 Shift + A : prints uppearcase A only.
-  //! 🤡 Shift + a : prints lowercase a only.
-  //! 🤡 Shortcuts such as "Control+o" or "Control+Shift+T" are NOT supported as well.
+  //!🤡 Browser-level shortcuts ❌ (Ctrl+O, Ctrl+Shift+T) - does not work in PW
+  //!🤡 DOM-level shortcuts ✅ (Ctrl+A, Ctrl+C, Ctrl+V) - works in PW
 });
 
 //! 🤡🤡 Utility method of clear the pre-filled textboxes/input fields traditionally 🤡🤡

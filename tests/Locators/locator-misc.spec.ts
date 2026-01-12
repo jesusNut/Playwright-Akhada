@@ -48,9 +48,9 @@ test("Locator & Auto-waitibilty concept", async () => {
   // - waiting for locator('xxxxxxxxxxx')
   //   at tests\zzzzzz\xxxxxxx.spec.ts
 
-  //* 🤠 NOTE:  PW DOES NOT CARE IF WRONG LOCATORS ARE STORED AS CONSTANTS,
+  //* 🤠 NOTE:  PW locators are lazy. PW DOES NOT CARE IF WRONG LOCATORS ARE STORED AS CONSTANTS,
   //*          IT WILL TRY TO RESOLVE LOCATORS TO ELEMENTS ON SOME ACTIONS ONLY.
-  //* 🤠 Example : If the Locator is wrong.
+  //* 🤠 Example : If the Locator is wrong stored in a variable without any action, the TC will pass.
 
   //todo EXCEPTION : METHODS WHICH ARE USED ON LIST OF ELEMENTS DOES NOT WAIT FOR LOCATORS TO RESOLVE TO ELEMENTS.
   //todo So, If the locator is wrong, the method will definitely give 0 or empty arrays (as per their return types).

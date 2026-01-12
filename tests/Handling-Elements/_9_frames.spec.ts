@@ -28,9 +28,11 @@ test("Handling frames directly : using frameLocator() method", async ({
 test("Finding number of frames - frames() method", async ({ page }) => {
   await page.goto("https://ui.vision/demo/webtest/frames/");
 
-  //find total number of frames on a page.
-  const allFrames = page.frames(); //fetch all frames attached to a page.
-  console.log(`Total nubers of frames are ${allFrames.length}`);
+  // page.frames() returns all frames including the main page
+  const allFrames = page.frames();
+
+  console.log(`Total frames (including main page): ${allFrames.length}`);
+  console.log(`Total child frames: ${allFrames.length - 1}`);
 });
 
 test("Fetching/getting frames out of a page & then interacting with frame objects - frame() method", async ({
@@ -101,6 +103,17 @@ test("Nested frames - childFrames() method - example 2", async ({ page }) => {
   await parentFrame?.locator("//input[@name='mytext3']").fill("Murari");
 });
 
+test("Nested frames - *** recommended- FrameLocator chaining *** - example 3", async ({ page }) => {
+  await page.goto("https://www.hyrtutorials.com/p/frames-practice.html");
+
+  await page
+    .frameLocator("#frm3")
+    .frameLocator("#frm1")
+    .locator("xpath = .//select[@id='selectnav1']")
+    .selectOption("- Waits Practice");
+
+  await page.waitForTimeout(5000);
+});
 
 /**==========================================================================================
  *!    ☠️☠️  Using PICK LOCATOR functionality to pick elements inside frames/iframes ☠️☠️

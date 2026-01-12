@@ -38,7 +38,7 @@ test("getByLabel", async ({ page }) => {
 
   await page.getByLabel("Email").fill("admin@admin.com");
   await page.getByLabel("Password").fill("admin123");
-  await page.getByRole("button", { name: /Submit/i }).click();
+  await page.getByRole("button", { name: /Submit/i }).click(); //using regex
 
   //example-2
   await page.goto("https://bookcart.azurewebsites.net/login");

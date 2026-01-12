@@ -142,6 +142,3 @@ test("Sliders - evaluating Javascript", async ({ page }) => {
 
   await sliderbtn.click();
 });
-
-
-

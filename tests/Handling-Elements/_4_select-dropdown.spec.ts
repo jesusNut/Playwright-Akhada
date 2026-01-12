@@ -104,11 +104,11 @@ test("Multi Select dropdown_4", async ({ page }) => {
   await page.waitForTimeout(2000);
 });
 
-test("Assertions for select dropdown", async ({ page }) => {
+test("Assertions for select dropdown- 1", async ({ page }) => {
   await page.goto("https://demo.automationtesting.in/Register.html");
   await page.waitForTimeout(4000);
 
-  //! 1. print and verify number of options in Month Dropdown - approach 1
+  //! 1a. print and verify number of options in Month Dropdown - approach 1
 
   const countOfOptions = await page
     .getByPlaceholder("Month")
@@ -118,65 +118,116 @@ test("Assertions for select dropdown", async ({ page }) => {
   expect(countOfOptions).toBe(13);
   expect(countOfOptions).toEqual(13);
 
-  //! 2. Verify number of options in Month Dropdown - approach 2
+  //! 1b. Verify number of options in Month Dropdown - approach 2 :: Web-first assertion.
 
   const monthDropdown = page.getByPlaceholder("Month").locator("//option");
   await expect(monthDropdown).toHaveCount(13);
+});
 
-  //! 3. Check presence of an option in the dropdown list
+test("Assertions for select dropdown- 2", async ({ page }) => {
+  await page.goto("https://techcanvass.com/Examples/multi-select.html");
 
-  const allOptions = await page.getByPlaceholder("Month").textContent();
+  //! ☠️ 2a. Check presence of an option in the dropdown list - web fist assertion
 
-  // expect(allOptions).toContain("July"); //!apporach-1
-  expect(allOptions?.includes("July")).toBeTruthy(); //! approach-2
+  //const tempEle = page.locator("#multiselect option").filter({hasText : 'Honda'}); //🤩 if text needs to be asserted - web first assertion
+  const tempEle = page
+    .locator("#multiselect")
+    .locator("xpath=.//option[@value='honda']"); //🤩 if value needs to be asserted -- web first assertion
+  await expect(tempEle).toHaveCount(1);
 
-  //! 4. Check ALL elements in a list is present in the dropdown list in same order.
+  //! ☠️ 2b. Check presence of an option in the dropdown list - NON web fist assertion
 
-  const allOptions2 = page.getByPlaceholder("Month").locator("//option");
+  const tempEle1 = await page.locator("#multiselect option").allTextContents();
+  expect(tempEle1).toContainEqual("Honda"); //🤩 Non-web first asertion way!!!
+});
 
-  expect(await allOptions2.allTextContents()).toEqual([
-    "Month",
-    "January",
-    "February",
-    "March",
-    "April",
-    "May",
-    "June",
-    "July",
-    "August",
-    "September",
-    "October",
-    "November",
-    "December"
-  ]);
+test("Assertions for select dropdown- 3", async ({ page }) => {
+  const expectedData = [
+    "Volvo",
+    "Maruti Suzuki",
+    "Opel",
+    "Audi",
+    "Honda",
+    "Hyundai",
+  ];
+  await page.goto("https://techcanvass.com/Examples/multi-select.html");
 
-  //! 5a. Check some elements in a list(i.e. a sublist) is present in the dropdown list. [using custom method]
+  //! 3a. Check ALL elements in a list is present in the dropdown list in same order.
 
-  const allOptions1 = page.getByPlaceholder("Month").locator("//option");
+  const actualStringArr = await page
+    .locator("#multiselect option")
+    .allTextContents();
+  expect(actualStringArr.map((str) => str.trim())).toEqual(expectedData);
+});
 
-  //custom function to check if an array contains a subset.
-  const isSubsetIncluded = <T>(parentArray: Array<T>, subset: Array<T>) => {
-    return subset.every((el) => {
-      return parentArray.includes(el);
-    });
-  };
+test("Assertions for select dropdown- 4", async ({ page }) => {
+  const expectedData = ["Opel", "Audi"];
+  await page.goto("https://techcanvass.com/Examples/multi-select.html");
+
+  //! 4a. Check some elements in a list(i.e. a sublist) is present in the dropdown list in ANY ORDER. [using custom method]
+
+  const actualStringArr = (
+    await page.locator("#multiselect option").allTextContents()
+  ).map((str) => str.trim());
 
   expect(
-    isSubsetIncluded(await allOptions1?.allTextContents(), ["July", "May"])
+    expectedData.every((ele) => actualStringArr.includes(ele))
   ).toBeTruthy();
 
-  //! 5b. Check some elements in a list (i.e. a sublist) is present in the dropdown list.[using arrayContaining() method]
+  //! 4b. Check some elements in a list (i.e. a sublist) is present in the dropdown list in ANY ORDER.[using arrayContaining() method]
 
-  const allOptions3 = page.getByPlaceholder("Month").locator("//option");
+  expect(actualStringArr).toEqual(expect.arrayContaining(expectedData));
+});
 
-  expect(await allOptions3.allTextContents()).toEqual(
-    expect.arrayContaining([
-      "October",
-      "November",
-      "December",
-      "January",
-      "February",
-      "March",
-    ])
-  );
+test("Assertions for select dropdown- 5", async ({ page }) => {
+  await page.goto("https://techcanvass.com/Examples/multi-select.html");
+
+  //! 5. Validate the options once they are selected in a multiselect dropdown.
+
+  const dd = page.locator("#multiselect");
+  //select "Opel" and "Maruti Suzuki".
+  await dd.selectOption(["Opel", "Maruti Suzuki"]);
+  await page.waitForTimeout(2000);
+  //validate "Opel" and "Maruti Suzuki" are indeed selected.
+  await expect(dd).toHaveValues(["suzuki", "opel"]);
+  //!☠️ note 1: toHaveValues() asserts option 'VALUEs' and not label/visibe text and must be awaited;
+  //!☠️ note 2: Playwright expects the array of values to match the order of the selected options in the DOM
+  //!   (which is almost always the order they appear from top to bottom in the dropdown).so thsi will fail : await expect(dd).toHaveValues(["opel", "suzuki"]);
+});
+
+test("Assertions for select dropdown- 6", async ({ page }) => {
+  await page.goto("https://techcanvass.com/Examples/multi-select.html");
+
+  //! 6. Validate the options once they are selected in a multiselect dropdown.- FIXING ISSUE WITH NOTE 2 in example 5
+
+  const dd = page.locator("#multiselect");
+
+  //select "Opel" and "Maruti Suzuki".
+  await dd.selectOption(["Opel", "Maruti Suzuki"]);
+  await page.waitForTimeout(2000);
+
+  const actualArr = await dd.evaluate((dd) => {
+    const data = dd as HTMLSelectElement;
+    return Array.from(data.selectedOptions).map((ele) => ele.value);
+  });
+
+  //validate "Opel" and "Maruti Suzuki" are indeed selected.
+  expect(actualArr.sort()).toEqual(["opel", "suzuki"].sort());
+
+});
+
+test("Assertions for select dropdown- 7", async ({ page }) => {
+  await page.goto("https://techcanvass.com/Examples/multi-select.html");
+
+  //! 7. Validate whether a single option selected in a single/multi select dropdown after selection.
+
+  const dd = page.locator("#multiselect");
+
+  // select "Opel"
+  await dd.selectOption("Opel");
+
+  // validate "Opel" is indeed selected
+  await expect(dd).toHaveValue("opel");
+
+  //! ☠️ toHaveValue() / toHaveValues() assertions validate the option’s VALUE attribute -'opel', not the visible text (label) - 'Opel'.Notice case.
 });

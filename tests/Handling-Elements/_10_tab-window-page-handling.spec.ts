@@ -1,4 +1,4 @@
-import { test, chromium, expect } from "@playwright/test";
+import { test, chromium, expect, Page } from "@playwright/test";
 
 /**==================================================================
  *!    ☠️☠️  HANDLING NEW TAB AND WINDOWS ☠️☠️
@@ -212,7 +212,7 @@ test("Clicking a link on a page opening other window", async ({ page }) => {
   await page.close();
 });
 
-test("Handling multiple tabs", async ({ page }) => {
+test("Handling multiple tabs - non recommended approach", async ({ page }) => {
   await page.goto(
     "https://www.hyrtutorials.com/p/window-handles-practice.html"
   );
@@ -258,7 +258,9 @@ test("Handling multiple tabs", async ({ page }) => {
   await page.close();
 });
 
-test("Handling multiple windows", async ({ page }) => {
+test("Handling multiple windows - non recommended approach", async ({
+  page,
+}) => {
   await page.goto(
     "https://www.hyrtutorials.com/p/window-handles-practice.html"
   );
@@ -308,6 +310,89 @@ test("Handling multiple windows", async ({ page }) => {
   }
 });
 
+test("Handling windows - recommended approach", async ({ page, context }) => {
+  // Navigate using main page fixture
+  await page.goto(
+    "https://www.hyrtutorials.com/p/window-handles-practice.html"
+  );
 
+  //! click to open multiple tabs (main page + 2 popups)
+  await page.locator("#newTabsBtn").click();
 
+  //! Wait until at least 3 pages exist in the context
+  //! context.pages() always includes main page + all popups
+  await expect.poll(() => context.pages().length).toBe(3);
 
+  // Declare variables OUTSIDE the loop to store references to popup pages
+  let basicDemoPage: Page | undefined;
+  let alertDemoPage: Page | undefined;
+
+  // Iterate through all pages in the same context
+  for (const p of context.pages()) {
+    // Identify popup pages using URL fragments
+    if (p.url().includes("basic-controls")) {
+      basicDemoPage = p;
+    }
+    if (p.url().includes("alertsdemo")) {
+      alertDemoPage = p;
+    }
+  }
+
+  // ✅ Safety check: only proceed if both popups were found
+  if (basicDemoPage && alertDemoPage) {
+    // Bring the basic demo tab to front and interact
+    await basicDemoPage.bringToFront();
+    await basicDemoPage.locator("#firstName").fill("Abhishek");
+
+    await page.waitForTimeout(3000); // slows test; better: await basicDemoPage.locator("#firstName").waitFor()
+
+    // Bring alert demo tab to front and interact
+    await alertDemoPage.bringToFront();
+    await alertDemoPage.locator("#alertBox").click();
+
+    // Assertion using web-first style (waits automatically)
+    await expect(alertDemoPage.locator("#output")).toHaveText(
+      "You selected alert popup"
+    );
+
+    await page.waitForTimeout(3000);
+
+    // Switch back to main page
+    await page.bringToFront();
+    await page.locator("#name").fill("Mohniesh");
+
+    //! Closing pages
+    await page.close(); // closes main page
+    await basicDemoPage.waitForTimeout(2000);
+    await basicDemoPage.close();
+    await alertDemoPage.waitForTimeout(2000); // unnecessary, can remove
+    await alertDemoPage.close();
+  }
+});
+
+//! ☠️☠️☠️ Important concept ☠️☠️☠️
+
+// test("example", async ({ page, context }) => {
+// ...
+// });
+
+// context fixture  → creates a BrowserContext
+// page fixture     → creates a Page inside that same context.
+
+//! Demo and proof:
+
+test("Relation between page and context fixture provided in same test", async ({
+  page,
+  context,
+}) => {
+  // Navigate using main page fixture
+  await page.goto(
+    "https://www.hyrtutorials.com/p/window-handles-practice.html"
+  );
+
+  //! 😒proof that page fixture belongs to context fixture if both are provided in test:
+
+  console.log(context.pages().length); // must be 1
+
+  //!☠️ context.pages() always includes all pages in that context, including the page fixture itself.
+});
